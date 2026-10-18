@@ -48,7 +48,6 @@ const TitleMixImg: React.FC<TitleMixImgProps> = ({
               trigger: refBox.current,
               start: "top bottom",
               end: "bottom bottom+=200",
-              markers: true,
               toggleActions: "restart none none reset",
             },
           });

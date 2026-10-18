@@ -60,6 +60,14 @@ const StatsHighlight: React.FC<StatsHighlightProps> = ({
     });
 
     // Optional: expose timelines here if you want to sync with external sequences
+
+    // Kill the timelines and their ScrollTriggers when the component unmounts
+    return () => {
+      timelines.forEach((tl) => {
+        tl.scrollTrigger?.kill();
+        tl.kill();
+      });
+    };
   }, []);
 
   return (

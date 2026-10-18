@@ -20,6 +20,8 @@ const ExplosionContainer: React.FC<{
   const [explosionTriggered, setExplosionTriggered] = useState<boolean>(false);
   const [isFooterInViewport, setIsFooterInViewport] = useState<boolean>(false);
   const particlesRef = useRef<Particle[]>([]);
+  const frameRef = useRef(0);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const config: Config = {
     gravity: 0.25,
@@ -102,7 +104,6 @@ const ExplosionContainer: React.FC<{
 
     createParticles();
 
-    let animationId: number;
     let finished = false;
 
     const animate = (): void => {
@@ -117,15 +118,15 @@ const ExplosionContainer: React.FC<{
             particle.y > explosionContainerRef.current!.offsetHeight / 2
         )
       ) {
-        cancelAnimationFrame(animationId);
+        cancelAnimationFrame(frameRef.current);
         finished = true;
-        setTimeout(() => {
+        resetTimerRef.current = setTimeout(() => {
           setExplosionTriggered(false);
         }, 2000);
         return;
       }
 
-      animationId = requestAnimationFrame(animate);
+      frameRef.current = requestAnimationFrame(animate);
     };
 
     animate();
@@ -152,7 +153,12 @@ const ExplosionContainer: React.FC<{
         });
       }
     });
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      // Stop a running explosion loop / pending reset if the footer unmounts mid-animation
+      cancelAnimationFrame(frameRef.current);
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    };
   }, [explosionContainerRef]);
 
   return (

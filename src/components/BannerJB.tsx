@@ -56,7 +56,7 @@ const BannerJB = () => {
   return (
     <>
       {/* WEB  */}
-      <section className="jb_banner_new hidden md:block layout_normal pt-32 pb-0 lg:pt-32 layout_normal px-2 w-[90%] md:w-[90%] lg:w-[70%]">
+      <section className="jb_banner_new hidden sm:block layout_normal pt-32 pb-[45px] md:pb-0 lg:pt-32 layout_normal px-2 w-[90%] md:w-[90%] lg:w-[70%]">
         <h2 className="sr-only">
           MOTIF®: Beyond the Agency Model for Fashion, Beauty & Lifestyle Brands
         </h2>
@@ -73,7 +73,7 @@ const BannerJB = () => {
         </div>
 
         <div ref={refBox} className="mt-3">
-          <p className="anm-hero-pera overflow-hidden font-helvetica text-hero_subtitle_sm md:text-hero_subtitle_md lg:text-hero_subtitle_lg 2xl:text-hero_subtitle_2xl 3xl:text-[clamp(20px,30px,32px)] font-medium text-typo-mute">
+          <p className="anm-hero-pera overflow-hidden font-helvetica text-hero_subtitle_sm sm:text-[16px] md:text-hero_subtitle_md lg:text-hero_subtitle_lg 2xl:text-hero_subtitle_2xl 3xl:text-[clamp(20px,30px,32px)] font-medium text-typo-mute">
             Once an advertising and branding agency, now a global incubator that
             builds, grows, and scales luxury lifestyle, fashion, and beauty
             brands through innovative strategies, human first approaches,

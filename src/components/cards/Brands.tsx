@@ -87,8 +87,11 @@ const Brands = () => {
     if (brands.length === 0) return;
 
     let animationRef: gsap.core.Tween | null = null;
+    let masterRef: gsap.core.Timeline | null = null;
+    let cancelled = false;
 
     const animateBrands = () => {
+      if (cancelled) return;
       // Generate random indexes for staggered animation
       const indexes = Array.from({ length: brands.length }, (_, i) => i).sort(
         () => Math.random() - 0.5
@@ -98,9 +101,10 @@ const Brands = () => {
       const masterTl = gsap.timeline({
         onComplete: () => {
           // Schedule next animation cycle
-          animationRef = gsap.delayedCall(3, animateBrands);
+          if (!cancelled) animationRef = gsap.delayedCall(3, animateBrands);
         },
       });
+      masterRef = masterTl;
 
       brands.forEach((brand, pos) => {
         const index = indexes[pos];
@@ -139,9 +143,11 @@ const Brands = () => {
 
     // Cleanup function
     return () => {
+      cancelled = true;
       if (animationRef) {
         animationRef.kill();
       }
+      masterRef?.kill();
       gsap.killTweensOf(brands);
     };
   }, [finishedTimeline]);

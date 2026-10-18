@@ -66,6 +66,8 @@ const items = Array(repeatCount)
 
 
     let currentDirection = 1;
+    // This instance's own trigger (a shared id would let one marquee kill another's trigger)
+    let fadeTrigger: ScrollTrigger | null = null;
 
     const onWheel = (e: WheelEvent) => {
       const newDirection = e.deltaY < 0 ? -1 : 1;
@@ -96,8 +98,7 @@ const items = Array(repeatCount)
       // Fade-in animation (unchanged)
       gsap.set(wrapperRef.current, { opacity: 0, y: 50 });
 
-      ScrollTrigger.create({
-        id: "marquee-fade",
+      fadeTrigger = ScrollTrigger.create({
         trigger: wrapperRef.current,
         start: "top 90%",
         end: "bottom 10%",
@@ -124,9 +125,9 @@ const items = Array(repeatCount)
     return () => {
       tl.kill();
       wrapperRef.current?.removeEventListener("wheel", onWheel);
-      ScrollTrigger.getById("marquee-fade")?.kill();
+      fadeTrigger?.kill();
     };
-  }, [items, speed]);
+  }, [text.join("|"), iconSize, speed, direction]);
 
   return (
     <div

@@ -217,3 +217,29 @@ Both builds used the same temporary metadata rename.
 - Existing pages untouched; no visual change outside the new routes.
 - Verification: `npx tsc --noEmit` 0 errors; `npm run build` passes. Visual check of /blog, /blogs, a blog page and all 5 templates at 1440px and 390px (no horizontal overflow). Revalidate/preview routes reject bad secrets; preview redirect only allows /blog(s) paths.
 - Revert: delete the new files/folders above and `git checkout -- src/components/blog-card.tsx next.config.ts src/middleware.ts public/robots.txt`.
+
+## [2026-10-18] ANIM-1 — Animation leak/cleanup pass (🟢 items from `brain/animation-fixes.md`)
+- Scope: only fixes that keep the look the same. The banner/hero animations, the page transition, the intro, and the global section layers (G17) were not touched.
+- Changes:
+  - G11 `cursor/CursorDot.tsx`: the rAF loop is cancelled on unmount; the mousemove listener is passive.
+  - G12 `cursor/CursorLabel.tsx`: tweens use `overwrite:"auto"`; glass/text tweens run only when the label state changes; `setLabel` only on change; passive listeners.
+  - S1 `lib_comp/GsapImageMarquee.tsx`: the ticker callback and resize listener are removed on unmount; the loop skips work while offscreen.
+  - S13 `shared/TitleMixImg.tsx`: removed `markers: true`.
+  - P7 `beauty-…/~com/AppearanceCards.tsx`: removed the stray `node:test` import.
+  - S16 `AnimatedLines.tsx`, S28 `extrasc/StatHighlight.tsx`: tweens and ScrollTriggers are cleaned up on unmount.
+  - S21 `shared/ExplosionContainer.tsx`: the rAF loop and reset timeout are cancelled on unmount.
+  - S25 `cards/Brands.tsx`: the logo-cycle timeline is killed on unmount and doesn't reschedule after it.
+  - P1 12× `AppearanceCards.tsx` + `~comp/BrandProfile.tsx`: the timeline is wrapped in `gsap.context`, with `ctx.revert()` on cleanup.
+  - G25/G28 `Navbar/TopBar.tsx`: the menu's SplitText is reverted and its hover listeners removed on close (the intro is finished, not aborted); removed a no-op scroll tween; passive scroll listener.
+  - G6 `loading-animation.tsx`: the infinite cube timelines are scoped in `gsap.context` and reverted on unmount.
+  - S7 `marqueeNav/MarqueeNavigation.tsx`, `ui/MarqueeInPage.tsx`: each instance kills its own trigger (no shared id); the loop rebuilds only when text/iconSize/speed/direction change, not on every parent render.
+  - S23 `shared/Slider.tsx`: the previous slide's SplitText is reverted before re-splitting.
+  - S19 `shared/MadeToBreak.tsx`: the follow tween uses `overwrite:"auto"`.
+  - S24 `shared/footer/Footer.tsx`: hover listeners are removed on cleanup; hover tweens use `overwrite:"auto"` (fixes letters sometimes staying orange).
+  - Reduced motion (`globals.css`): decorative infinite loops (card blobs, `animate-spin_slow`) stop under `prefers-reduced-motion`.
+- Verification:
+  - `npx tsc --noEmit` reports 0 errors; `npm run build` passes.
+  - Browser check of /, /fashion-agency, /about, /what-we-do, /the-motif-process, /why-motif, /culture, /contact and /beauty-… with scroll and cursor movement: 0 console/page errors.
+  - Menu opened and closed twice: the split depth stays 2 while open and returns to 0 when closed (it used to grow).
+  - Client-side navigation works, and the home banner is unchanged.
+- Revert: `git checkout -- <file>` for any file above.

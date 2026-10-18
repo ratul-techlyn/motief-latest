@@ -35,11 +35,6 @@ const TopBar = () => {
         setIsScrolling(true);
       }
 
-      gsap.to("#top-bar", {
-        duration: 0.3,
-        ease: "power2.out",
-      });
-
       if (scrollY > 0) {
         setIsScrolling(true);
         setOpacity(0);
@@ -49,7 +44,7 @@ const TopBar = () => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -63,6 +58,9 @@ const TopBar = () => {
         ease: "power2.out",
       },
     });
+    // Per-open resources, released when the menu closes so they don't pile up on every open
+    const splits: SplitText[] = [];
+    const hoverHandlers: { el: HTMLElement; enter: () => void; leave: () => void }[] = [];
     if (isOpen) {
       document.body.style.overflow = "hidden";
       const menus = gsap.utils.toArray("#top-bar .nav-menu a");
@@ -111,6 +109,7 @@ const TopBar = () => {
         const split = new SplitText(currentMenu, {
           type: "lines, chars",
         });
+        splits.push(split);
 
         timeline.from(
           split.lines,
@@ -124,23 +123,25 @@ const TopBar = () => {
           "1"
         );
 
-        currentMenu.addEventListener("mouseenter", () => {
+        const enter = () => {
           gsap.to(split.chars, {
             color: "#ed5f09",
             duration: 0.3,
             stagger: 0.02,
             ease: "power2.out",
           });
-        });
-
-        currentMenu.addEventListener("mouseleave", () => {
+        };
+        const leave = () => {
           gsap.to(split.chars, {
             color: "#FFF",
             duration: 0.3,
             stagger: 0.02,
             ease: "power2.out",
           });
-        });
+        };
+        currentMenu.addEventListener("mouseenter", enter);
+        currentMenu.addEventListener("mouseleave", leave);
+        hoverHandlers.push({ el: currentMenu, enter, leave });
       });
     } else {
       document.body.style.overflow = "";
@@ -148,6 +149,16 @@ const TopBar = () => {
 
     return () => {
       document.body.style.overflow = "";
+      // Finish (not abort) the intro so no element is left half-faded for the next open
+      timeline.progress(1).kill();
+      hoverHandlers.forEach(({ el, enter, leave }) => {
+        el.removeEventListener("mouseenter", enter);
+        el.removeEventListener("mouseleave", leave);
+      });
+      splits.forEach((split) => {
+        gsap.killTweensOf(split.chars);
+        split.revert();
+      });
     };
   }, [isOpen]);
 

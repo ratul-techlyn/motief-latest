@@ -65,7 +65,19 @@ const Slider = ({
   useEffect(() => {
     if (!swiperInstance) return;
 
+    // Splits from the previous slide change; reverted before splitting again so the
+    // quote markup isn't wrapped deeper on every change
+    let activeSplits: SplitText[] = [];
+    const revertSplits = () => {
+      activeSplits.forEach((split) => {
+        gsap.killTweensOf(split.lines);
+        split.revert();
+      });
+      activeSplits = [];
+    };
+
     const handleSlideChange = () => {
+      revertSplits();
       const activeSlide = swiperInstance.slides[swiperInstance.activeIndex];
       const slideContent = activeSlide?.querySelector(
         ".slide-content .quote-paragraph"
@@ -78,6 +90,7 @@ const Slider = ({
           linesClass: "overflow-hidden",
         });
         const splitAuthor = new SplitText(quoteAuthor, { type: "lines" });
+        activeSplits = [splitContent, splitAuthor];
 
         gsap.from(splitContent.lines, {
           opacity: 0,
@@ -101,6 +114,7 @@ const Slider = ({
 
     return () => {
       swiperInstance.off("slideChangeTransitionStart", handleSlideChange);
+      revertSplits();
     };
   }, [swiperInstance, path]);
 

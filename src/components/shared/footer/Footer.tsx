@@ -105,6 +105,8 @@ const Footer = () => {
     if (footerRef.current) {
       const menus = footerRef.current.querySelectorAll(".footer_menus li a");
 
+      const cleanups: (() => void)[] = [];
+
       menus.forEach((menu, index) => {
         const currentMenu = menu as HTMLElement;
 
@@ -112,24 +114,34 @@ const Footer = () => {
           type: "lines, chars",
         });
 
-        currentMenu.addEventListener("mouseenter", () => {
+        const enter = () => {
           gsap.to(split.chars, {
             color: "#ed5f09",
             duration: 0.3,
             stagger: 0.02,
             ease: "power2.out",
+            overwrite: "auto",
           });
-        });
-
-        currentMenu.addEventListener("mouseleave", () => {
+        };
+        const leave = () => {
           gsap.to(split.chars, {
             color: "rgb(132, 132, 132)",
             duration: 0.3,
             stagger: 0.02,
             ease: "power2.out",
+            overwrite: "auto",
           });
+        };
+        currentMenu.addEventListener("mouseenter", enter);
+        currentMenu.addEventListener("mouseleave", leave);
+        cleanups.push(() => {
+          currentMenu.removeEventListener("mouseenter", enter);
+          currentMenu.removeEventListener("mouseleave", leave);
+          gsap.killTweensOf(split.chars);
         });
       });
+
+      return () => cleanups.forEach((fn) => fn());
     }
   });
   return (

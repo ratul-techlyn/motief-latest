@@ -811,3 +811,12 @@ html, body { height: 100%; }
     max-width: 100%;
   }
 }
+/* Reduced motion: stop purely decorative infinite loops for users who ask for less motion.
+   Content animations (hero/banner, reveals) are unchanged here. */
+/* @media (prefers-reduced-motion: reduce) {
+  .card_background::before,
+  .card_background::after,
+  .animate-spin_slow {
+    animation: none !important;
+  }
+} */

@@ -92,68 +92,72 @@ const AppearanceCards = () => {
   const [feeling, setFeeling] = useState<Feeling>(Feeling.Neutral);
 
   useEffect(() => {
-    if (brandSectionRef.current) {
-      const crads = brandSectionRef.current.querySelectorAll(".brand-card");
-      const cardNames =
-        brandSectionRef.current.querySelectorAll(".barnd_card_name");
-      const cardCategories = brandSectionRef.current.querySelectorAll(
-        ".barnd_card_category"
-      );
-      const cardIds =
-        brandSectionRef.current.querySelectorAll(".barnd_card_id");
-      const cardImages =
-        brandSectionRef.current.querySelectorAll(".brand-card-img");
-
-      const brandTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: brandSectionRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          toggleActions: "play none none restart",
-        },
-      });
-
-      brandTimeline
-        .from(crads, {
-          opacity: 0,
-          x: "100vw",
-          duration: 3,
-          delay: (index) => index * 0.01,
-          ease: "power2.inOut",
-        })
-        .from(
-          cardImages,
-          {
-            borderRadius: "17%",
-            duration: 1,
-            ease: "power2.inOut",
-          },
-          "-=0.5"
-        )
-        .from(cardNames, {
-          opacity: 0,
-          duration: 1,
-          ease: "power2.inOut",
-        })
-        .from(
-          cardCategories,
-          {
-            opacity: 0,
-            duration: 1,
-            ease: "power2.inOut",
-          },
-          "<"
-        )
-        .from(
-          cardIds,
-          {
-            opacity: 0,
-            duration: 1,
-            ease: "power2.inOut",
-          },
-          "<"
+    // Scoped so the timeline and its ScrollTrigger are reverted on unmount/re-run
+    const ctx = gsap.context(() => {
+      if (brandSectionRef.current) {
+        const crads = brandSectionRef.current.querySelectorAll(".brand-card");
+        const cardNames =
+          brandSectionRef.current.querySelectorAll(".barnd_card_name");
+        const cardCategories = brandSectionRef.current.querySelectorAll(
+          ".barnd_card_category"
         );
-    }
+        const cardIds =
+          brandSectionRef.current.querySelectorAll(".barnd_card_id");
+        const cardImages =
+          brandSectionRef.current.querySelectorAll(".brand-card-img");
+
+        const brandTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: brandSectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            toggleActions: "play none none restart",
+          },
+        });
+
+        brandTimeline
+          .from(crads, {
+            opacity: 0,
+            x: "100vw",
+            duration: 3,
+            delay: (index) => index * 0.01,
+            ease: "power2.inOut",
+          })
+          .from(
+            cardImages,
+            {
+              borderRadius: "17%",
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            "-=0.5"
+          )
+          .from(cardNames, {
+            opacity: 0,
+            duration: 1,
+            ease: "power2.inOut",
+          })
+          .from(
+            cardCategories,
+            {
+              opacity: 0,
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            "<"
+          )
+          .from(
+            cardIds,
+            {
+              opacity: 0,
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            "<"
+          );
+      }
+    }, brandSectionRef);
+    return () => ctx.revert();
   }, [brandSectionRef.current, isWindow]);
 
   useEffect(() => {

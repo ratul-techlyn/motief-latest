@@ -173,7 +173,7 @@ const TitleImgBannerJB = ({
                     className="relative block visible rounded-full w-[20vw] md:w-[12vw] lg:w-[8vw] 2xl:w-[8vw] h-[40px] md:h-[4vw] lg:h-[3vw] 2xl:h-[2.5vw] bg-cover bg-center bg-no-repeat hero_ani_text"
                     style={{
                       aspectRatio: "1 / 1",
-                      backgroundSize: "8vw",
+                      // No fixed backgroundSize: bg-cover fills the capsule at every width
                       backgroundPosition: "center",
                       margin: "0 0 1% 3%",
                     }}

@@ -136,6 +136,8 @@ export default function MadeToBreak() {
         x: x,
         duration: 1,
         ease: "power2.out",
+        // Each mousemove replaces the previous follow tween instead of stacking another
+        overwrite: "auto",
       });
     }
   };

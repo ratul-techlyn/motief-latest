@@ -10,7 +10,7 @@ declare global {
     grecaptcha: {
       execute: (
         siteKey: string,
-        options: { action: string }
+        options: { action: string },
       ) => Promise<string>;
       ready: (callback: () => void) => void;
     };
@@ -39,6 +39,15 @@ const companySizes = [
   { id: 7, label: "Over $300,000 /MONTH" },
 ];
 
+const engagementBudgets = [
+  { id: 1, label: "Under $100,000" },
+  { id: 2, label: "$100,000 - $199,999" },
+  { id: 3, label: "$200,000 - $299,999" },
+  { id: 4, label: "$300,000 - $399,999" },
+  { id: 5, label: "$400,000 - $499,999" },
+  { id: 6, label: "$500,000+" },
+];
+
 const ContactForm = () => {
   const [form, setForm] = useState({
     firstName: "",
@@ -49,6 +58,7 @@ const ContactForm = () => {
     phone: "",
     interest: "",
     budget: "",
+    engagementBudget: "",
     about: "",
   });
 
@@ -98,7 +108,7 @@ const ContactForm = () => {
         "6LfeGAcsAAAAADHjgdLeT2qEY210QPD9dN25f3KQ",
         {
           action: "submit_form",
-        }
+        },
       );
 
       // Verify the token with your backend to get the score
@@ -186,6 +196,8 @@ const ContactForm = () => {
     if (!form.interest)
       newErrors.interest = "We need to know what sparks your interest.";
     if (!form.budget) newErrors.budget = "Give us a ballpark—no pressure.";
+    if (!form.engagementBudget)
+      newErrors.engagementBudget = "Pick a range—it helps us plan the right team.";
     if (!form.about)
       newErrors.about = "Feel free to rant, dream, or pitch here.";
 
@@ -199,7 +211,7 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     const filledCount = Object.values(form).filter(
-      (val) => val.trim() !== ""
+      (val) => val.trim() !== "",
     ).length;
 
     if (filledCount === 0) {
@@ -210,7 +222,7 @@ const ContactForm = () => {
 
     if (filledCount === 1) {
       setPartialMessage(
-        "Just one field? We're intrigued... but not quite ready."
+        "Just one field? We're intrigued... but not quite ready.",
       );
       setIsSubmitting(false);
       return;
@@ -287,6 +299,7 @@ const ContactForm = () => {
             website: form.website,
             interest: form.interest,
             budget: form.budget,
+            engagement_budget: form.engagementBudget,
             content_name: "Contact Form",
             content_category: "Lead Generation",
           },
@@ -317,6 +330,7 @@ const ContactForm = () => {
             phone: "",
             interest: "",
             budget: "",
+            engagementBudget: "",
             about: "",
           });
           setSubmitSuccess(false);
@@ -354,24 +368,25 @@ const ContactForm = () => {
           onSubmit={handleSubmit}
         />
 
-        <div className="col-span-2 grid gap-2 sm:col-span-6">
-          <Input
-            id="brand"
-            placeholder="Brand Name"
-            value={form.brand}
-            onChange={updateField}
-            error={errors.brand}
-            onSubmit={handleSubmit}
-          />
+        <Input
+          id="brand"
+          placeholder="Brand Name"
+          value={form.brand}
+          onChange={updateField}
+          error={errors.brand}
+          onSubmit={handleSubmit}
+        />
 
-          <Input
-            id="website"
-            placeholder="Website"
-            value={form.website}
-            onChange={updateField}
-            error={errors.website}
-            onSubmit={handleSubmit}
-          />
+        <Input
+          id="website"
+          placeholder="Website"
+          value={form.website}
+          onChange={updateField}
+          error={errors.website}
+          onSubmit={handleSubmit}
+        />
+        
+        <div className="col-span-2 grid gap-2 sm:col-span-6">
           <Input
             id="phone"
             placeholder="Phone Number"
@@ -403,6 +418,14 @@ const ContactForm = () => {
             placeholder="Business Stage"
             options={companySizes}
             error={errors.budget}
+          />
+          <Select
+            id="engagementBudget"
+            value={form.engagementBudget}
+            onChange={updateField}
+            placeholder="Annual Engagement Budget"
+            options={engagementBudgets}
+            error={errors.engagementBudget}
           />
         </div>
 
@@ -492,8 +515,8 @@ const ContactForm = () => {
             {isVerifying
               ? "Verifying..."
               : isSubmitting
-              ? "Sending..."
-              : "Send Email"}
+                ? "Sending..."
+                : "Send Email"}
             <span
               className={`ml-4 px-3 py-3 rounded-l-md rounded-tr-md rounded-br-xl ${
                 isSubmitting || isVerifying

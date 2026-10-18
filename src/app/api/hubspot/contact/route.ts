@@ -13,12 +13,19 @@ interface ContactFormData {
   website: string;
   interest: string;
   budget: string;
+  engagementBudget?: string;
   about: string;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const formData: ContactFormData = await request.json();
+
+    // The HubSpot form has no engagement-budget field (unknown fields make the submission fail),
+    // so it is added to the message text instead
+    const message = formData.engagementBudget
+      ? `${formData.about}\n\nAnnual Engagement Budget: ${formData.engagementBudget}`
+      : formData.about;
 
     if (!HUBSPOT_ACCESS_TOKEN || !HUBSPOT_PORTAL_ID) {
       console.warn('HubSpot API credentials not configured');
@@ -46,7 +53,7 @@ export async function POST(request: NextRequest) {
             { name: 'website', value: formData.website },
             { name: 'interest_area', value: formData.interest },
             { name: 'business_stage', value: formData.budget },
-            { name: 'message', value: formData.about },
+            { name: 'message', value: message },
           ],
           context: {
             pageUri: request.headers.get('referer') || '',

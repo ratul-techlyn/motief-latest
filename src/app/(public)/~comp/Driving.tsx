@@ -102,7 +102,7 @@ const Driving = () => {
 
       <div className="mt-40 mx-auto md:mt-60 w-[90%] md:w-[90%] lg:w-[70%]">
         <div className="mt-28 text-typo-primary">
-          <div className="w-full md:w-[60%] lg:w-[50%] xl:w-[40%]">
+          <div className="w-full md:w-[60%] lg:w-[50%] xl:w-[50%]">
             <h2 className="capitalize text-section_heading_sm md:text-section_heading_md lg:text-section_heading_lg 2xl:text-section_heading_2xl 3xl:text-[clamp(50px,2.5vw,60px)] font-semibold font-clash leading-[1.2em] ">
               <TextAnimation
                 type="fadeUp"

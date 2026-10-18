@@ -176,9 +176,12 @@ export default function LoadingAnimation({
   }, [isLoading, texts.length, setAnimationComplete, onComplete, imagesLoaded]);
 
   useEffect(() => {
-    if (showCubes && cubesRef.current && imagesLoaded) {
+    const container = cubesRef.current;
+    if (!(showCubes && container && imagesLoaded)) return;
+    // Infinite spin timelines: scoped so they stop when the intro unmounts
+    const ctx = gsap.context(() => {
       const cubes = gsap.utils.toArray(
-        cubesRef.current.children
+        container.children
       ) as HTMLElement[];
 
       gsap.to(cubes, {
@@ -240,7 +243,8 @@ export default function LoadingAnimation({
             }
           );
       });
-    }
+    });
+    return () => ctx.revert();
   }, [showCubes, imagesLoaded]);
 
   // Don't render anything if not a first-time user or not loading

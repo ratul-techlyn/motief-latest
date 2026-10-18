@@ -13,6 +13,7 @@ interface ContactFormData {
   website: string;
   interest: string;
   budget: string;
+  engagementBudget?: string;
   about: string;
 }
 
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
       <p><strong>Website:</strong> ${formData.website}</p>
       <p><strong>Interest:</strong> ${formData.interest}</p>
       <p><strong>Budget/Business Stage:</strong> ${formData.budget}</p>
+      <p><strong>Annual Engagement Budget:</strong> ${formData.engagementBudget || ''}</p>
       <p><strong>Message:</strong></p>
       <p>${formData.about.replace(/\n/g, '<br>')}</p>
       
@@ -58,6 +60,7 @@ Brand: ${formData.brand}
 Website: ${formData.website}
 Interest: ${formData.interest}
 Budget/Business Stage: ${formData.budget}
+Annual Engagement Budget: ${formData.engagementBudget || ''}
 
 Message:
 ${formData.about}

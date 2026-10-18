@@ -23,6 +23,10 @@ export default function GsapImageMarquee({ sliderList }: Props) {
   const direction = useRef(1);
 
   useEffect(() => {
+    // Ticker and window listeners are not tracked by gsap.context, so they are removed explicitly
+    let tick: (() => void) | null = null;
+    let onResize: (() => void) | null = null;
+
     const ctx = gsap.context(() => {
       const wrapper = wrapperRef.current;
       const track = trackRef.current;
@@ -38,9 +42,10 @@ export default function GsapImageMarquee({ sliderList }: Props) {
       };
 
       let trackHalfWidth = updateSize();
-      window.addEventListener("resize", () => {
+      onResize = () => {
         trackHalfWidth = updateSize();
-      });
+      };
+      window.addEventListener("resize", onResize);
 
       // Dragging via Draggable
       Draggable.create(track, {
@@ -89,7 +94,7 @@ export default function GsapImageMarquee({ sliderList }: Props) {
       };
 
       if (track && wrapper) {
-        ScrollTrigger.create({
+        const visibility = ScrollTrigger.create({
           trigger: wrapper,
           start: "top bottom",
           end: "bottom top",
@@ -108,7 +113,10 @@ export default function GsapImageMarquee({ sliderList }: Props) {
           },
         });
 
-        gsap.ticker.add(() => {
+        tick = () => {
+          // Skip the per-frame work while the marquee is off screen
+          if (!visibility.isActive) return;
+
           smoothedVelocity = lerp(smoothedVelocity, rawVelocity, 0.075);
           scrollVelocity.current = Math.min(smoothedVelocity, 3);
 
@@ -123,11 +131,16 @@ export default function GsapImageMarquee({ sliderList }: Props) {
           if (offsetX >= 0) offsetX -= trackHalfWidth;
 
           gsap.set(track, { x: offsetX });
-        });
+        };
+        gsap.ticker.add(tick);
       }
     });
 
-    return () => ctx.revert();
+    return () => {
+      if (tick) gsap.ticker.remove(tick);
+      if (onResize) window.removeEventListener("resize", onResize);
+      ctx.revert();
+    };
   }, [sliderList]);
 
   return (

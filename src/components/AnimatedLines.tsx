@@ -26,27 +26,32 @@ const AnimatedLine = ({
   useEffect(() => {
     if (!lineRef.current || !triggerRef.current || isBot) return;
 
-    // Reset the line scale before animating
-    gsap.set(lineRef.current, {
-      scaleX: 0,
-      transformOrigin: direction,
+    // Scoped so the tween and its ScrollTrigger are removed on unmount/re-run
+    const ctx = gsap.context(() => {
+      // Reset the line scale before animating
+      gsap.set(lineRef.current, {
+        scaleX: 0,
+        transformOrigin: direction,
+      });
+
+      gsap.fromTo(
+        lineRef.current,
+        { scaleX: 0, transformOrigin: direction },
+        {
+          scaleX: 1,
+          duration: 4.5,
+          delay: delay,
+          stagger: 4,
+          ease: "power4.out",
+          scrollTrigger: {
+            trigger: triggerRef.current,
+            start: "top 80%",
+          },
+        }
+      );
     });
 
-    gsap.fromTo(
-      lineRef.current,
-      { scaleX: 0, transformOrigin: direction },
-      {
-        scaleX: 1,
-        duration: 4.5,
-        delay: delay,
-        stagger: 4,
-        ease: "power4.out",
-        scrollTrigger: {
-          trigger: triggerRef.current,
-          start: "top 80%",
-        },
-      }
-    );
+    return () => ctx.revert();
   }, [direction, triggerRef, delay, isBot]);
 
   if (absolute) {

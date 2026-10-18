@@ -22,24 +22,34 @@ const CursorLabel = () => {
 
     let cursorX = 0;
     let cursorY = 0;
+    let lastAttr: string | null = null;
+    let lastHasLabel: boolean | null = null;
 
     const handleMove = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const labelSource = target?.closest("[data-cursor-label]");
+      const labelSource = target?.closest?.("[data-cursor-label]");
       const attr = labelSource?.getAttribute("data-cursor-label") || "";
-      setLabel(attr);
+      if (attr !== lastAttr) {
+        lastAttr = attr;
+        setLabel(attr);
+      }
 
       cursorX = e.clientX;
       cursorY = e.clientY;
 
+      // overwrite: each move replaces the previous follow tween instead of stacking
       gsap.to(containerEl, {
         x: e.clientX,
         y: e.clientY,
         duration: 0.2,
         ease: "power3.out",
+        overwrite: "auto",
       });
 
       const hasLabel = Boolean(attr);
+      // Glass/text targets only change when the label appears or disappears
+      if (hasLabel === lastHasLabel) return;
+      lastHasLabel = hasLabel;
 
       gsap.to(glass, {
         scale: hasLabel ? 1.2 : 0.5,
@@ -49,6 +59,7 @@ const CursorLabel = () => {
         backdropFilter: hasLabel ? "blur(10px)" : "blur(0px)",
         duration: 0.25,
         ease: hasLabel ? "power2.out" : "power2.in",
+        overwrite: "auto",
       });
 
       gsap.to(textSpan, {
@@ -56,6 +67,7 @@ const CursorLabel = () => {
         y: hasLabel ? 0 : 6,
         duration: 0.2,
         ease: hasLabel ? "power2.out" : "power2.in",
+        overwrite: "auto",
       });
     };
 
@@ -67,8 +79,8 @@ const CursorLabel = () => {
       } as MouseEvent);
     };
 
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("mousemove", handleMove, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", handleMove);

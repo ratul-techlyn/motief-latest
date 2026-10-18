@@ -51,6 +51,7 @@ const nextConfig: NextConfig = {
     // Blog media uploaded through Strapi (see brain/strapi-setup.md)
     remotePatterns: [
       { protocol: "https", hostname: "cms.wemotif.com", pathname: "/uploads/**" },
+      { protocol: "https", hostname: "tetecztijih9r68vw5vyuoc4.vps.pointerapps.net", pathname: "/uploads/**" },
       { protocol: "http", hostname: "localhost", port: "1337", pathname: "/uploads/**" },
       { protocol: "http", hostname: "127.0.0.1", port: "1337", pathname: "/uploads/**" },
     ],

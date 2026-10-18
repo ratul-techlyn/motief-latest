@@ -20,6 +20,7 @@ const CursorDot = () => {
     const setX = gsap.quickSetter(dot, "x", "px");
     const setY = gsap.quickSetter(dot, "y", "px");
 
+    let frameId = 0;
     const update = () => {
       pos.x += (mouse.x - pos.x) * 0.2;
       pos.y += (mouse.y - pos.y) * 0.2;
@@ -27,7 +28,7 @@ const CursorDot = () => {
       setX(pos.x);
       setY(pos.y);
 
-      requestAnimationFrame(update);
+      frameId = requestAnimationFrame(update);
     };
     update();
 
@@ -36,8 +37,12 @@ const CursorDot = () => {
       mouse.y = e.clientY;
     };
 
-    window.addEventListener("mousemove", moveHandler);
-    return () => window.removeEventListener("mousemove", moveHandler);
+    window.addEventListener("mousemove", moveHandler, { passive: true });
+    return () => {
+      // Stop the follow loop, otherwise it keeps running after unmount
+      cancelAnimationFrame(frameId);
+      window.removeEventListener("mousemove", moveHandler);
+    };
   }, []);
 
   useEffect(() => {
