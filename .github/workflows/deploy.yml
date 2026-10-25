@@ -1,9 +1,9 @@
 name: Deploy to Hostinger VPS
 
-# Every push to main deploys wemotif.com. It can also be started by hand from the Actions tab.
+# Every push to production deploys wemotif.com. It can also be started by hand from the Actions tab.
 on:
   push:
-    branches: [main]
+    branches: [production]
   workflow_dispatch:
 
 # Never run two deploys at the same time; a newer push waits for the running one
