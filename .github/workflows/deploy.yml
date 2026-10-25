@@ -84,16 +84,28 @@ jobs:
           REMOTE
 
       - name: Health check
+        # PM2 runs two wemotif-com processes from this folder: 3333 serves wemotif.com, 3000 serves wemotif.net
         run: |
-          ssh deploy-target "PORT='$PORT' bash -s" <<'REMOTE'
-          for i in $(seq 1 20); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/" || true)
-            case "$code" in
-              2*|3*) echo "Site is responding (HTTP $code)"; exit 0 ;;
-            esac
-            sleep 3
+          ssh deploy-target "PORTS='$PORT 3000' bash -s" <<'REMOTE'
+          export NVM_DIR="$HOME/.nvm"
+          . "$NVM_DIR/nvm.sh"
+          failed=0
+          for port in $PORTS; do
+            ok=0
+            for i in $(seq 1 20); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port/" || true)
+              case "$code" in
+                2*|3*) echo "Port $port is responding (HTTP $code)"; ok=1; break ;;
+              esac
+              sleep 3
+            done
+            if [ "$ok" -ne 1 ]; then
+              echo "::error::Site did not respond on port $port (last HTTP code: $code)"
+              failed=1
+            fi
           done
-          echo "::error::Site did not respond on port $PORT (last HTTP code: $code)"
-          pm2 logs --nostream --lines 40 || true
-          exit 1
+          if [ "$failed" -ne 0 ]; then
+            pm2 logs --nostream --lines 40 || true
+            exit 1
+          fi
           REMOTE
